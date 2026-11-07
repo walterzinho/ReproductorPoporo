@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "actualizado": "2026-11-07T03:10:14.393Z",
+  "actualizado": "2026-11-07T03:12:11.303Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
-    "imagenPorDefecto": "https://raw.githubusercontent.com/walterzinho/VocesApp/main/general-musica.jpg"
+    "imagenPorDefecto": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/general-musica.jpg"
   },
   "programas": [
     {
