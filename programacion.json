@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-07T03:12:11.303Z",
+  "actualizado": "2026-11-07T03:14:59.404Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -214,7 +214,7 @@
     {
       "id": "flash-informativo-impares",
       "titulo": "Flash Informativo (horas impares)",
-      "conductor": "Equipo Voces Campesinas",
+      "conductor": "Redacción Voces Campesinas",
       "inicio": "09:00",
       "fin": "09:15",
       "dias": [
@@ -226,14 +226,14 @@
         5,
         6
       ],
-      "imagen": "",
+      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
       "esReemision": false,
       "repetirCada": 2
     },
     {
       "id": "flash-informativo-pares",
       "titulo": "Flash Informativo (horas pares)",
-      "conductor": "Equipo Voces Campesinas",
+      "conductor": "Redacción Voces Campesinas",
       "inicio": "10:00",
       "fin": "10:15",
       "dias": [
@@ -245,7 +245,7 @@
         5,
         6
       ],
-      "imagen": "",
+      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
       "esReemision": false,
       "repetirCada": 2
     }
