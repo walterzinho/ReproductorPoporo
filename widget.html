@@ -315,31 +315,30 @@
                                 </button>
                             </div>
 
-                            {/* INFO Y VOLUMEN (TEXTOS +2 PUNTOS) */}
+                            {/* INFO Y VOLUMEN — 2 líneas: [🔴 Al Aire + título] / [conductor + chip] */}
                             <div className="col-span-9 p-4 flex flex-col justify-center">
-                                <div className="mb-3">
-                                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse-live"></span>
-                                        {/* Aumentado de 8px a 10px */}
-                                        <span className="text-[14px] font-black tracking-[0.2em] text-white/60">Al Aire</span>
+                                <div className="mb-2">
+                                    <div className="flex items-center gap-2 mb-0.5 min-w-0">
+                                        <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse-live shrink-0"></span>
+                                        <span className="text-[11px] font-black tracking-[0.18em] text-white/60 uppercase whitespace-nowrap shrink-0">Al Aire</span>
+                                        <h2 className="text-[20px] font-black truncate text-white/90 leading-tight drop-shadow-md min-w-0">
+                                            {vista.titulo}
+                                        </h2>
+                                    </div>
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <p className="text-[12px] text-[#F4D03F] italic truncate drop-shadow-sm font-medium min-w-0">
+                                            de {vista.conductor}
+                                        </p>
                                         {vista.esReemision ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-black">
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-black whitespace-nowrap shrink-0">
                                                 <Icon name="replay" size={10} className="text-black" /> REEMISIÓN
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center rounded-full border border-white/30 px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-white/70">
+                                            <span className="inline-flex items-center rounded-full border border-white/30 px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-white/70 whitespace-nowrap shrink-0">
                                                 ORIGINAL
                                             </span>
                                         )}
                                     </div>
-                                    {/* Aumentado de text-sm (16px) a text-base (18px) */}
-                                    <h2 className="text-[22px] font-black truncate text-white/90 leading-tight mb-1 drop-shadow-md">
-                                        {vista.titulo}
-                                    </h2>
-                                    {/* Aumentado de 12px a 14px (text-xs) */}
-                                    <p className="text-[12px] text-[#F4D03F] italic truncate drop-shadow-sm font-medium">
-                                        de {vista.conductor}
-                                    </p>
                                 </div>
 
                                 <div className="flex items-center gap-3">
@@ -367,7 +366,7 @@
 
                         {/* FRANJA "A CONTINUACIÓN" — próximo programa, una sola línea, baja */}
                         {sigVista && nextInfo && (
-                            <div className="border-t border-white/10 bg-black/40 px-4 py-1.5 flex items-center gap-2 min-w-0">
+                            <div className="border-t border-white/10 bg-black/60 px-4 py-1.5 flex items-center gap-2 min-w-0">
                                 <span className="inline-flex items-center gap-1 text-[9px] font-black tracking-[0.16em] text-[#F4D03F] whitespace-nowrap shrink-0">
                                     <Icon name="next" size={11} className="text-[#F4D03F]" /> A CONTINUACIÓN
                                 </span>
