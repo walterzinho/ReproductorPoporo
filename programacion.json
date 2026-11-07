@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-07T03:14:59.404Z",
+  "actualizado": "2026-11-07T03:38:27.467Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -242,8 +242,7 @@
         2,
         3,
         4,
-        5,
-        6
+        5
       ],
       "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
       "esReemision": false,
