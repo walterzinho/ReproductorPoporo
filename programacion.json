@@ -1,0 +1,291 @@
+{
+  "version": 1,
+  "actualizado": "2026-11-07T03:09:41.797Z",
+  "emisora": {
+    "nombre": "Voces Campesinas",
+    "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
+    "imagenPorDefecto": "https://raw.githubusercontent.com/walterzinho/VocesApp/main/general-musica.jpg"
+  },
+  "programas": [
+    {
+      "id": "prog-01",
+      "titulo": "Cosecha de Fin de Año",
+      "conductor": "Joaquin Escobar",
+      "inicio": "18:30",
+      "fin": "20:30",
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-02",
+      "titulo": "Alborada Colombiana",
+      "conductor": "Música Colombiana",
+      "inicio": "05:00",
+      "fin": "06:29",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-03",
+      "titulo": "Campesinos en Acción",
+      "conductor": "ANUC La Palma",
+      "inicio": "06:30",
+      "fin": "06:59",
+      "dias": [
+        6,
+        1
+      ],
+      "imagen": "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-04",
+      "titulo": "Perreo Campesino",
+      "conductor": "Música Carranguera",
+      "inicio": "07:00",
+      "fin": "07:59",
+      "dias": [
+        1,
+        2,
+        4,
+        5,
+        0
+      ],
+      "imagen": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-05",
+      "titulo": "Magazín Región Activa",
+      "conductor": "Jotta Ricón",
+      "inicio": "07:30",
+      "fin": "10:59",
+      "dias": [
+        6,
+        3
+      ],
+      "imagen": "https://images.unsplash.com/photo-1478737270239-2fccd2c78621?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-06",
+      "titulo": "Reemisión Magazín Región Activa",
+      "conductor": "Jotta Rincón",
+      "inicio": "22:00",
+      "fin": "23:59",
+      "dias": [
+        4
+      ],
+      "imagen": "https://images.unsplash.com/photo-1520520131472-3093f5044aa7?q=80&w=600",
+      "esReemision": true,
+      "origenId": "prog-05"
+    },
+    {
+      "id": "prog-07",
+      "titulo": "La Parcela de Opinión",
+      "conductor": "Walter Sosa",
+      "inicio": "21:00",
+      "fin": "21:30",
+      "dias": [
+        4,
+        5
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/VocesApp/main/parcela-politica.jpg",
+      "esReemision": false
+    },
+    {
+      "id": "prog-08",
+      "titulo": "Perreo Campesino",
+      "conductor": "Música Carranguera",
+      "inicio": "13:00",
+      "fin": "13:59",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-09",
+      "titulo": "Palabras del Territorio",
+      "conductor": "Walter Sosa",
+      "inicio": "19:30",
+      "fin": "20:29",
+      "dias": [
+        2,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-10",
+      "titulo": "Renacer Andino",
+      "conductor": "Ramón Olivares",
+      "inicio": "19:30",
+      "fin": "20:30",
+      "dias": [
+        0,
+        3
+      ],
+      "imagen": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-11",
+      "titulo": "Renacer Andino",
+      "conductor": "Ramón Olivares",
+      "inicio": "20:30",
+      "fin": "21:30",
+      "dias": [
+        3
+      ],
+      "imagen": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=600",
+      "esReemision": true,
+      "origenId": "prog-10"
+    },
+    {
+      "id": "prog-12",
+      "titulo": "Lo Mejor de Región Activa",
+      "conductor": "Jotta Rincón",
+      "inicio": "19:30",
+      "fin": "22:59",
+      "dias": [
+        5
+      ],
+      "imagen": "https://images.unsplash.com/photo-1520520131472-3093f5044aa7?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-13",
+      "titulo": "Cosecha de Amor",
+      "conductor": "Dj Rosado",
+      "inicio": "20:00",
+      "fin": "20:59",
+      "dias": [
+        1,
+        2,
+        3,
+        4,
+        6,
+        0
+      ],
+      "imagen": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-14",
+      "titulo": "Cuentos y Leyendas",
+      "conductor": "Abuelo Ricardo",
+      "inicio": "21:30",
+      "fin": "23:59",
+      "dias": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "imagen": "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600",
+      "esReemision": false
+    },
+    {
+      "id": "prog-15",
+      "titulo": "Flash Informativo",
+      "conductor": "Redacción Voces Campesinas",
+      "inicio": "09:00",
+      "fin": "09:05",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
+      "esReemision": false,
+      "repetirCada": 2
+    },
+    {
+      "id": "prog-16",
+      "titulo": "Flash Informativo",
+      "conductor": "Redacción Voces Campesinas",
+      "inicio": "10:00",
+      "fin": "10:05",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
+      "esReemision": false,
+      "repetirCada": 2
+    },
+    {
+      "id": "flash-informativo-impares",
+      "titulo": "Flash Informativo (horas impares)",
+      "conductor": "Equipo Voces Campesinas",
+      "inicio": "09:00",
+      "fin": "09:15",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "",
+      "esReemision": false,
+      "repetirCada": 2
+    },
+    {
+      "id": "flash-informativo-pares",
+      "titulo": "Flash Informativo (horas pares)",
+      "conductor": "Equipo Voces Campesinas",
+      "inicio": "10:00",
+      "fin": "10:15",
+      "dias": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "imagen": "",
+      "esReemision": false,
+      "repetirCada": 2
+    }
+  ]
+}
