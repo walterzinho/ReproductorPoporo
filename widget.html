@@ -320,21 +320,21 @@
                                 <div className="mb-2">
                                     <div className="flex items-center gap-2 mb-0.5 min-w-0">
                                         <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse-live shrink-0"></span>
-                                        <span className="text-[11px] font-black tracking-[0.18em] text-white/60 uppercase whitespace-nowrap shrink-0">Al Aire</span>
-                                        <h2 className="text-[20px] font-black truncate text-white/90 leading-tight drop-shadow-md min-w-0">
+                                        <h2 className="text-[20px] font-black truncate text-white/90 leading-tight drop-shadow-md min-w-0 flex-1">
                                             {vista.titulo}
                                         </h2>
+                                        <span className="text-[11px] font-black tracking-[0.18em] text-white/60 uppercase whitespace-nowrap shrink-0">Al Aire</span>
                                     </div>
                                     <div className="flex items-center gap-2 min-w-0">
                                         <p className="text-[12px] text-[#F4D03F] italic truncate drop-shadow-sm font-medium min-w-0">
                                             de {vista.conductor}
                                         </p>
                                         {vista.esReemision ? (
-                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-black whitespace-nowrap shrink-0">
-                                                <Icon name="replay" size={10} className="text-black" /> REEMISIÓN
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-1.5 py-0.5 text-[8px] font-black tracking-[0.12em] text-black whitespace-nowrap shrink-0">
+                                                <Icon name="replay" size={9} className="text-black" /> REEMISIÓN
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center rounded-full border border-white/30 px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-white/70 whitespace-nowrap shrink-0">
+                                            <span className="inline-flex items-center rounded-full border border-white/30 px-1.5 py-0.5 text-[8px] font-black tracking-[0.12em] text-white/70 whitespace-nowrap shrink-0">
                                                 ORIGINAL
                                             </span>
                                         )}
