@@ -365,30 +365,26 @@
 
                         </div>
 
-                        {/* FRANJA "A CONTINUACIÓN" — próximo programa, dentro del reproductor */}
+                        {/* FRANJA "A CONTINUACIÓN" — próximo programa, una sola línea, baja */}
                         {sigVista && nextInfo && (
-                            <div className="border-t border-white/10 bg-black/40 px-4 py-2.5">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] text-[#F4D03F]">
-                                        <Icon name="next" size={12} className="text-[#F4D03F]" /> A CONTINUACIÓN
+                            <div className="border-t border-white/10 bg-black/40 px-4 py-1.5 flex items-center gap-2 min-w-0">
+                                <span className="inline-flex items-center gap-1 text-[9px] font-black tracking-[0.16em] text-[#F4D03F] whitespace-nowrap shrink-0">
+                                    <Icon name="next" size={11} className="text-[#F4D03F]" /> A CONTINUACIÓN
+                                </span>
+                                <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-2 py-0.5 text-[9px] font-black tracking-[0.1em] text-white/80 uppercase whitespace-nowrap shrink-0">
+                                    {etiquetaCuando(nextInfo.inicio)}
+                                </span>
+                                {sigVista.esReemision && (
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-black whitespace-nowrap shrink-0">
+                                        <Icon name="replay" size={9} className="text-black" /> REEMISIÓN
                                     </span>
-                                    <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-white/80 uppercase">
-                                        {etiquetaCuando(nextInfo.inicio)}
-                                    </span>
-                                    {sigVista.esReemision && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-black">
-                                            <Icon name="replay" size={10} className="text-black" /> REEMISIÓN
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="mt-1 flex items-baseline gap-2 min-w-0">
-                                    <h3 className="text-[16px] font-black text-white/90 truncate leading-tight drop-shadow-md">
-                                        {sigVista.titulo}
-                                    </h3>
-                                    <span className="text-[11px] text-white/55 truncate font-medium">
-                                        con {sigVista.conductor}
-                                    </span>
-                                </div>
+                                )}
+                                <h3 className="text-[13px] font-black text-white/90 truncate leading-tight drop-shadow-md min-w-0">
+                                    {sigVista.titulo}
+                                </h3>
+                                <span className="text-[10px] text-white/55 truncate whitespace-nowrap font-medium min-w-0 hidden min-[440px]:inline">
+                                    con {sigVista.conductor}
+                                </span>
                             </div>
                         )}
 
