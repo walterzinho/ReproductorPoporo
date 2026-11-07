@@ -73,7 +73,7 @@
         const WIDGET_CONFIG = {
   "name": "Voces Campesinas",
   "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
-  "defaultBg": "https://raw.githubusercontent.com/walterzinho/VocesApp/main/general-musica.jpg",
+  "defaultBg": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/general-musica.jpg",
   "repo": "walterzinho/ReproductorPoporo",
   "branch": "main",
   "schedulePath": "programacion.json"
@@ -134,41 +134,63 @@
         }
 
         /**
-         * Elige el programa al aire. Mejoras sobre la versión original:
-         * - Si dos programas se cruzan, gana el que empezó más reciente.
-         * - Soporta programas que cruzan la medianoche (fin <= inicio).
-         * - Multi-horario: cada programa puede tener varias franjas (horarios[])
-         *   y repetir cada N horas (repetirCada), p. ej. flashes informativos
-         *   cada 2 h en horas impares o pares.
+         * Ocurrencias absolutas de todos los programas en los próximos días.
+         * Cada ocurrencia es { prog, inicio, fin } (Date); respeta franjas
+         * múltiples (horarios[]), la repetición cada N horas (repetirCada) y
+         * el cruce de medianoche, con la MISMA semántica de ventanasDeHorario.
          */
-        function findCurrent(programas) {
-            const now = new Date();
-            const cur = now.getHours() * 60 + now.getMinutes();
-            const day = now.getDay();
-            let best = null;
-            let bestStart = -Infinity;
+        function ocurrenciasDe(programas, diasAdelante, base) {
+            const out = [];
+            const b = base ? new Date(base) : new Date();
+            b.setHours(0, 0, 0, 0);
             for (const p of programas) {
                 for (const h of franjasDePrograma(p)) {
-                    const dias = h.dias || p.dias || [];
+                    const dias = (Array.isArray(h.dias) && h.dias.length) ? h.dias : (p.dias || []);
                     for (const [desde, hasta] of ventanasDeHorario(h)) {
-                        let onAir, startRel;
-                        if (hasta <= 1440) {
-                            onAir = cur >= desde && cur < hasta && dias.includes(day);
-                            startRel = desde;
-                        } else {
-                            // Cruza la medianoche: parte hoy y concluye mañana
-                            onAir = (cur >= desde && dias.includes(day)) ||
-                                    (cur < hasta - 1440 && dias.includes((day + 6) % 7));
-                            startRel = cur >= desde ? desde : desde - 1440;
-                        }
-                        if (onAir && startRel > bestStart) {
-                            best = p;
-                            bestStart = startRel;
+                        // Desde el día anterior (d = −1): un programa que cruzó
+                        // la medianoche sigue al aire esta madrugada.
+                        for (let d = -1; d <= diasAdelante; d++) {
+                            if (!dias.includes(((b.getDay() + d) % 7 + 7) % 7)) continue;
+                            const inicio = new Date(b.getTime() + (d * 1440 + desde) * 60000);
+                            const fin = new Date(inicio.getTime() + (hasta - desde) * 60000);
+                            out.push({ prog: p, inicio, fin });
                         }
                     }
                 }
             }
-            return best;
+            return out.sort((a, c) => a.inicio - c.inicio);
+        }
+
+        /**
+         * Estado de la emisora: qué suena ahora y qué programa sigue.
+         * - actual: ocurrencia que contiene `ahora`; si dos se cruzan, gana
+         *   la que empezó más reciente (misma regla de siempre).
+         * - siguiente: primera ocurrencia que arranca cuando termina la
+         *   actual (o después de `ahora` si nada está al aire).
+         */
+        function estadoReproduccion(programas, diasAdelante, ahora) {
+            const t = (ahora == null) ? new Date() : new Date(ahora);
+            const oc = ocurrenciasDe(programas, diasAdelante == null ? 8 : diasAdelante, t);
+            let actual = null;
+            for (const o of oc) {
+                if (o.inicio <= t && t < o.fin && (!actual || o.inicio > actual.inicio)) actual = o;
+            }
+            const limite = actual ? actual.fin : t;
+            const siguiente = oc.find(o => o.inicio >= limite) || null;
+            return { actual: actual ? actual.prog : null, siguiente };
+        }
+
+        /** Etiqueta del próximo inicio: "Hoy 14:00", "Mañana 05:00", "Sáb 18:30". */
+        function etiquetaCuando(inicio, ahora) {
+            if (!inicio) return "";
+            const DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+            const t = (ahora == null) ? new Date() : new Date(ahora);
+            const f = (d) => String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+            const mismoDia = (a, b2) => a.getFullYear() === b2.getFullYear() && a.getMonth() === b2.getMonth() && a.getDate() === b2.getDate();
+            const manana = new Date(t.getTime() + 86400000);
+            if (mismoDia(inicio, t)) return "Hoy " + f(inicio);
+            if (mismoDia(inicio, manana)) return "Mañana " + f(inicio);
+            return DIAS[inicio.getDay()] + " " + f(inicio);
         }
 
         /**
@@ -197,7 +219,8 @@
                 'play': <polygon points="5 3 19 12 5 21 5 3"></polygon>,
                 'pause': <g><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></g>,
                 'volume': <g><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></g>,
-                'replay': <g><path d="m3 12 9-9 9 9"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></g>
+                'replay': <g><path d="m3 12 9-9 9 9"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></g>,
+                'next': <g><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></g>
             };
             return (
                 <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -211,6 +234,7 @@
             const [volume, setVolume] = useState(0.8);
             const [remote, setRemote] = useState(null);
             const [currentProg, setCurrentProg] = useState(null);
+            const [nextInfo, setNextInfo] = useState(null);
             const audioRef = useRef(null);
 
             // 1) Sincroniza la programación desde GitHub cada 2 minutos
@@ -239,15 +263,16 @@
             const streamUrl = (remote && remote.emisora && remote.emisora.streamUrl) || WIDGET_CONFIG.streamUrl;
             const defaultBg = (remote && remote.emisora && remote.emisora.imagenPorDefecto) || WIDGET_CONFIG.defaultBg;
 
-            // 2) ¿Qué programa está al aire? (reevalúa cada 30 s)
+            // 2) ¿Qué suena ahora y qué sigue? (reevalúa cada 30 s)
             useEffect(() => {
                 const checkSchedule = () => {
-                    const found = findCurrent(programas);
-                    setCurrentProg(found || {
+                    const estado = estadoReproduccion(programas);
+                    setCurrentProg(estado.actual || {
                         titulo: "Música de la Tierrita",
                         conductor: WIDGET_CONFIG.name,
                         imagen: defaultBg
                     });
+                    setNextInfo(estado.siguiente);
                 };
                 checkSchedule();
                 const timer = setInterval(checkSchedule, 30000);
@@ -256,6 +281,7 @@
 
             // Información resuelta (reemisiones toman los datos del original)
             const vista = resolverProg(currentProg, programas);
+            const sigVista = nextInfo ? resolverProg(nextInfo.prog, programas) : null;
 
             const togglePlay = () => {
                 const audio = audioRef.current;
@@ -276,7 +302,8 @@
                         className="glass-player shadow-xl transition-all duration-700"
                         style={{ backgroundImage: `url(${vista.imagen || defaultBg})` }}
                     >
-                        <div className="player-content grid grid-cols-12 items-center">
+                        <div className="player-content">
+                        <div className="grid grid-cols-12 items-center">
 
                             {/* BOTÓN */}
                             <div className="col-span-3 flex items-center justify-center p-4">
@@ -335,6 +362,35 @@
                                     </div>
                                 </div>
                             </div>
+
+                        </div>
+
+                        {/* FRANJA "A CONTINUACIÓN" — próximo programa, dentro del reproductor */}
+                        {sigVista && nextInfo && (
+                            <div className="border-t border-white/10 bg-black/40 px-4 py-2.5">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black tracking-[0.18em] text-[#F4D03F]">
+                                        <Icon name="next" size={12} className="text-[#F4D03F]" /> A CONTINUACIÓN
+                                    </span>
+                                    <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-2 py-0.5 text-[9px] font-black tracking-[0.12em] text-white/80 uppercase">
+                                        {etiquetaCuando(nextInfo.inicio)}
+                                    </span>
+                                    {sigVista.esReemision && (
+                                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4D03F] px-2 py-0.5 text-[9px] font-black tracking-[0.15em] text-black">
+                                            <Icon name="replay" size={10} className="text-black" /> REEMISIÓN
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="mt-1 flex items-baseline gap-2 min-w-0">
+                                    <h3 className="text-[16px] font-black text-white/90 truncate leading-tight drop-shadow-md">
+                                        {sigVista.titulo}
+                                    </h3>
+                                    <span className="text-[11px] text-white/55 truncate font-medium">
+                                        con {sigVista.conductor}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
 
                         </div>
                     </div>
