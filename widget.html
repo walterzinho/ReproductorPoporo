@@ -295,7 +295,7 @@
             };
 
             return (
-                <div className="p-1 w-full">
+                <div className="w-full">
                     <audio ref={audioRef} onError={() => setIsPlaying(false)} />
 
                     <div
@@ -319,14 +319,14 @@
                             <div className="col-span-9 p-4 flex flex-col justify-center">
                                 <div className="mb-2">
                                     <div className="flex items-center gap-2 mb-0.5 min-w-0">
-                                        <h2 className="text-[20px] font-black truncate text-white/90 leading-tight drop-shadow-md min-w-0">
+                                        <h2 className="text-[20px] font-black truncate text-[#F4D03F] leading-tight drop-shadow-md min-w-0">
                                             {vista.titulo}
                                         </h2>
                                         <span className="flex h-2 w-2 rounded-full bg-red-500 animate-pulse-live shrink-0"></span>
                                         <span className="text-[11px] font-black tracking-[0.18em] text-white/60 uppercase whitespace-nowrap shrink-0">Al Aire</span>
                                     </div>
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <p className="text-[12px] text-[#F4D03F] italic truncate drop-shadow-sm font-medium min-w-0">
+                                        <p className="text-[12px] text-white/90 italic truncate drop-shadow-sm font-medium min-w-0">
                                             de {vista.conductor}
                                         </p>
                                         {vista.esReemision ? (
