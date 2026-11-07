@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Voces Campesinas · Panel de programación</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+  /* JSX con runtime clásico (React global) — el preset por defecto de este
+     Babel emite imports de módulos que no funcionan en script clásico. */
+  Babel.registerPreset("react-classic", {
+    presets: [[Babel.availablePresets.react, { runtime: "classic" }]],
+  });
+</script>
+<style>
+  :root { --carbon:#17202A; --trigo:#F4D03F; }
+  html,body { background:#0e141b; color:#f5f6f8; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  body { margin:0; min-height:100vh; background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(244,208,63,.08), transparent),
+    radial-gradient(900px 400px at -10% 110%, rgba(41,128,185,.10), transparent), var(--carbon); }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#2c3a49; border-radius:8px; }
+  input[type="time"] { color-scheme: dark; }
+  .card { background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.09); border-radius:1rem; }
+  .inp { width:100%; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.14); border-radius:.6rem; padding:.5rem .7rem; font-size:.875rem; outline:none; }
+  .inp:focus { border-color:var(--trigo); }
+  .btn { display:inline-flex; align-items:center; gap:.45rem; border-radius:.6rem; padding:.5rem .9rem; font-size:.85rem; font-weight:600; cursor:pointer; border:1px solid transparent; transition:.15s; }
+  .btn-principal { background:var(--trigo); color:#1a1305; }
+  .btn-principal:hover { filter:brightness(1.08); }
+  .btn-sec { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); color:#e8eaee; }
+  .btn-sec:hover { background:rgba(255,255,255,.12); }
+  .btn-peligro { background:rgba(220,60,60,.15); border-color:rgba(220,60,60,.4); color:#ff9c9c; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .chip { display:inline-flex; align-items:center; border-radius:999px; padding:.12rem .55rem; font-size:.68rem; font-weight:600; border:1px solid rgba(255,255,255,.18); color:#cfd6de; }
+  .chip-on { background:var(--trigo); border-color:var(--trigo); color:#1a1305; }
+  .spin { animation:g 1s linear infinite; } @keyframes g { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react-classic">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ══════════════ CONFIGURACIÓN FIJA (edítala si cambias de repo) ══════════════ */
+const CFG = {
+  owner: "walterzinho",
+  repo: "ReproductorPoporo",
+  branch: "main",
+  schedulePath: "programacion.json",
+  imagesFolder: "imagenes",
+};
+const REPO_API = `https://api.github.com/repos/${CFG.owner}/${CFG.repo}`;
+const REPO_RAW = `https://raw.githubusercontent.com/${CFG.owner}/${CFG.repo}/${CFG.branch}`;
+
+const DIAS_SEMANA = [
+  { valor: 1, corta: "Lun" }, { valor: 2, corta: "Mar" }, { valor: 3, corta: "Mié" },
+  { valor: 4, corta: "Jue" }, { valor: 5, corta: "Vie" }, { valor: 6, corta: "Sáb" },
+  { valor: 0, corta: "Dom" },
+];
+
+/* ══════════════ LÓGICA DE HORARIOS (idéntica al widget y al panel) ══════════════ */
+function aMinutos(t) {
+  const [h, m] = (t || "0:0").split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+function ventanasDeHorario(h) {
+  const s = aMinutos(h.inicio), e = aMinutos(h.fin);
+  const dur = e > s ? e - s : 1440 - s + e;
+  const rep = Number(h.repetirCada);
+  if (Number.isInteger(rep) && rep >= 1) {
+    const v = [];
+    for (let d = s; d + dur <= 1440; d += rep * 60) v.push({ desde: d, hasta: d + dur });
+    return v.length ? v : [{ desde: s, hasta: s + dur }];
+  }
+  return [{ desde: s, hasta: s + dur }];
+}
+function franjasDePrograma(p) {
+  const base = { inicio: p.inicio, fin: p.fin, dias: p.dias || [], repetirCada: p.repetirCada };
+  const extras = Array.isArray(p.horarios) ? p.horarios : [];
+  return [base, ...extras].filter((h) => h && h.inicio && h.fin);
+}
+function inicioEfectivoSiAlAire(p, ahora) {
+  const cur = ahora.getHours() * 60 + ahora.getMinutes();
+  const dia = ahora.getDay();
+  let mejor = null;
+  for (const h of franjasDePrograma(p)) {
+    const dias = h.dias || [];
+    for (const v of ventanasDeHorario(h)) {
+      let alAire, inicioRel;
+      if (v.hasta <= 1440) {
+        alAire = cur >= v.desde && cur < v.hasta && dias.includes(dia);
+        inicioRel = v.desde;
+      } else {
+        alAire = (cur >= v.desde && dias.includes(dia)) || (cur < v.hasta - 1440 && dias.includes((dia + 6) % 7));
+        inicioRel = cur >= v.desde ? v.desde : v.desde - 1440;
+      }
+      if (alAire && (mejor === null || inicioRel > mejor)) mejor = inicioRel;
+    }
+  }
+  return mejor;
+}
+function encontrarAlAire(programas, ahora) {
+  let mejor = null, mejorInicio = -Infinity;
+  for (const p of programas) {
+    const i = inicioEfectivoSiAlAire(p, ahora);
+    if (i !== null && i > mejorInicio) { mejor = p; mejorInicio = i; }
+  }
+  return mejor;
+}
+function resolverPrograma(p, programas) {
+  if (!p) return { titulo: "", conductor: "", imagen: "", esReemision: false };
+  let origen = null;
+  if (p.esReemision && p.origenId) origen = programas.find((x) => x.id === p.origenId && x.id !== p.id) || null;
+  return {
+    titulo: (origen?.titulo || p.titulo || "").trim(),
+    conductor: (origen?.conductor || p.conductor || "").trim(),
+    imagen: origen?.imagen || p.imagen || "",
+    esReemision: Boolean(p.esReemision),
+  };
+}
+function horasDeRepeticion(h, max) {
+  const rep = Number(h.repetirCada);
+  if (!Number.isInteger(rep) || rep < 1) return [];
+  const s = aMinutos(h.inicio), horas = [];
+  for (let d = s; d < 1440; d += rep * 60) {
+    horas.push(String(Math.floor(d / 60)).padStart(2, "0") + ":" + String(d % 60).padStart(2, "0"));
+    if (horas.length >= (max || 10)) break;
+  }
+  return horas;
+}
+function sanitizarHorario(h) {
+  if (!h) return null;
+  const inicio = String(h.inicio || "").trim(), fin = String(h.fin || "").trim();
+  if (!/^\d{1,2}:\d{2}$/.test(inicio) || !/^\d{1,2}:\d{2}$/.test(fin)) return null;
+  const dias = Array.isArray(h.dias) ? h.dias.map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 6) : [];
+  const out = { inicio, fin, dias };
+  const rep = Number(h.repetirCada);
+  if (Number.isInteger(rep) && rep >= 1 && rep <= 12) out.repetirCada = rep;
+  return out;
+}
+function sanitizarPrograma(p) {
+  const id = String(p?.id || "");
+  const out = {
+    id,
+    titulo: String(p?.titulo || "").trim(),
+    conductor: String(p?.conductor || "").trim(),
+    inicio: String(p?.inicio || "00:00"),
+    fin: String(p?.fin || "00:00"),
+    dias: Array.isArray(p?.dias) ? p.dias.map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 6) : [],
+    imagen: String(p?.imagen || "").trim(),
+    esReemision: Boolean(p?.esReemision),
+  };
+  const rep = Number(p?.repetirCada);
+  if (Number.isInteger(rep) && rep >= 1 && rep <= 12) out.repetirCada = rep;
+  const extras = Array.isArray(p?.horarios) ? p.horarios.map(sanitizarHorario).filter(Boolean) : [];
+  if (extras.length) out.horarios = extras.slice(0, 12);
+  const origenId = String(p?.origenId || "").trim();
+  out.origenId = out.esReemision && origenId && origenId !== id ? origenId : undefined;
+  return out;
+}
+function slugifyNombre(nombre) {
+  const base = nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+  return base || "imagen";
+}
+
+/* ══════════════ API GITHUB (desde el navegador, con tu token) ══════════════ */
+let TOKEN = "";
+function api(path, opts) {
+  opts = opts || {};
+  return fetch("https://api.github.com" + path, Object.assign({}, opts, {
+    headers: Object.assign({
+      "Accept": "application/vnd.github+json",
+      "Authorization": "Bearer " + TOKEN,
+      "Content-Type": "application/json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    }, opts.headers || {}),
+  }));
+}
+const aBase64 = (s) => btoa(unescape(encodeURIComponent(s)));
+const deBase64 = (b64) => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g, "")), (c) => c.charCodeAt(0)));
+
+async function leerProgramacion() {
+  const r = await api(`/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.schedulePath}?ref=${encodeURIComponent(CFG.branch)}`);
+  if (r.status === 404) return { sha: null, data: null };
+  if (!r.ok) throw new Error(mensajeError(r.status, await r.json().catch(() => ({}))));
+  const j = await r.json();
+  const data = JSON.parse(deBase64(j.content));
+  if (!data.emisora) data.emisora = null;
+  if (!Array.isArray(data.programas)) data.programas = [];
+  return { sha: j.sha, data };
+}
+async function guardarProgramacion(data, sha) {
+  const body = {
+    message: `programación: ${data.programas.length} programa(s) — panel web`,
+    content: aBase64(JSON.stringify(data, null, 2)),
+    branch: CFG.branch,
+  };
+  if (sha) body.sha = sha;
+  const r = await api(`/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.schedulePath}`, { method: "PUT", body: JSON.stringify(body) });
+  if (!r.ok) throw new Error(mensajeError(r.status, await r.json().catch(() => ({}))));
+  return (await r.json()).content.sha;
+}
+async function listarImagenes() {
+  const r = await api(`/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.imagesFolder}?ref=${encodeURIComponent(CFG.branch)}`);
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error(mensajeError(r.status, await r.json().catch(() => ({}))));
+  const arr = await r.json();
+  if (!Array.isArray(arr)) return [];
+  return arr.filter((i) => i.type === "file" && /\.(jpe?g|png|gif|webp|avif|svg)$/i.test(i.name))
+    .map((i) => ({ name: i.name, url: `${REPO_RAW}/${CFG.imagesFolder}/${encodeURIComponent(i.name)}`, sha: i.sha, size: i.size }));
+}
+async function subirImagen(nombre, base64) {
+  const existentes = await listarImagenes();
+  let final = nombre, n = 2;
+  while (existentes.some((i) => i.name === final)) {
+    const p = nombre.lastIndexOf(".");
+    final = p > 0 ? `${nombre.slice(0, p)}-${n}${nombre.slice(p)}` : `${nombre}-${n}`;
+    n++;
+  }
+  const r = await api(`/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.imagesFolder}/${final}`, {
+    method: "PUT",
+    body: JSON.stringify({ message: `imagen: ${final} — panel web`, content: base64, branch: CFG.branch }),
+  });
+  if (!r.ok) throw new Error(mensajeError(r.status, await r.json().catch(() => ({}))));
+  return `${REPO_RAW}/${CFG.imagesFolder}/${final}`;
+}
+async function borrarImagen(name, sha) {
+  const r = await api(`/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.imagesFolder}/${name}`, {
+    method: "DELETE",
+    body: JSON.stringify({ message: `imagen eliminada: ${name} — panel web`, sha, branch: CFG.branch }),
+  });
+  if (!r.ok) throw new Error(mensajeError(r.status, await r.json().catch(() => ({}))));
+}
+function mensajeError(status, j) {
+  const det = j && j.message ? ` (${j.message})` : "";
+  if (status === 401) return "Token inválido o expirado. Genera otro en github.com/settings/tokens";
+  if (status === 403) return "GitHub rechazó la operación (sin permisos o límite de peticiones)" + det;
+  if (status === 404) return "No se encontró el repositorio o el archivo" + det;
+  if (status === 409 || status === 422) return "Conflicto de versiones: el archivo cambió en GitHub. Recarga la página e intenta de nuevo." + det;
+  return "Error de GitHub " + status + det;
+}
+async function archivoABase64Jpeg(file, maxPx, calidad) {
+  const dataUrl = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(file);
+  });
+  const img = await new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i); i.onerror = rej; i.src = dataUrl;
+  });
+  const escala = Math.min(1, (maxPx || 1600) / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width * escala); c.height = Math.round(img.height * escala);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", calidad || 0.87).split(",")[1];
+}
+/* ══════════════ ÁTOMOS DE UI ══════════════ */
+function Badge({ children, tone }) {
+  const estilos = tone === "reemision"
+    ? "bg-sky-400/15 text-sky-300 border-sky-400/40"
+    : tone === "aire"
+      ? "bg-emerald-400/15 text-emerald-300 border-emerald-400/40"
+      : "bg-white/10 text-zinc-300 border-white/20";
+  return <span className={"inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide " + estilos}>{children}</span>;
+}
+function DiasChips({ dias, onChange }) {
+  const toggle = (v) => onChange(dias.includes(v) ? dias.filter((d) => d !== v) : [...dias, v].sort((a, b) => a - b));
+  return (
+    <div className="flex flex-wrap gap-1">
+      {DIAS_SEMANA.map((d) => (
+        <button type="button" key={d.valor} onClick={() => toggle(d.valor)}
+          className={"chip " + (dias.includes(d.valor) ? "chip-on" : "")}>{d.corta}</button>
+      ))}
+    </div>
+  );
+}
+function SelectRepeticion({ valor, onChange, id }) {
+  return (
+    <select id={id} className="inp" value={valor || ""} onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}>
+      <option value="">No repetir</option>
+      {[1,2,3,4,5,6,7,8,9,10,11,12].map((n) => <option key={n} value={n}>Repetir cada {n} h</option>)}
+    </select>
+  );
+}
+function AvisoRepeticion({ inicio, fin, repetirCada }) {
+  const horas = horasDeRepeticion({ inicio, repetirCada }, 14);
+  if (!horas.length) return null;
+  const impares = horas.some((h) => Number(h.split(":")[0]) % 2 === 1);
+  const pares = horas.some((h) => Number(h.split(":")[0]) % 2 === 0);
+  const pista = impares && !pares ? " · horas impares" : pares && !impares ? " · horas pares" : "";
+  return (
+    <p className="text-[11px] leading-relaxed text-amber-200/90 mt-1">
+      ⏱ Sale a las: {horas.join(", ")}{pista} — cada emisión va de {inicio} a {fin}.
+    </p>
+  );
+}
+
+/* ══════════════ SELECTOR DE IMAGEN (galería + subida) ══════════════ */
+function ImagenPicker({ valor, onChange, onClose }) {
+  const [imagenes, setImagenes] = useState(null);
+  const [subiendo, setSubiendo] = useState(false);
+  const [error, setError] = useState("");
+  const inputRef = useRef(null);
+  const cargar = () => {
+    setImagenes(null); setError("");
+    listarImagenes().then(setImagenes).catch((e) => { setError(e.message); setImagenes([]); });
+  };
+  useEffect(cargar, []);
+  const subir = async (f) => {
+    if (!f) return;
+    setSubiendo(true); setError("");
+    try {
+      const b64 = await archivoABase64Jpeg(f, 1600, 0.87);
+      const url = await subirImagen(slugifyNombre(f.name.replace(/\.[^.]+$/, "")) + ".jpg", b64);
+      onChange(url);
+      cargar();
+    } catch (e) { setError(e.message); }
+    setSubiendo(false);
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+      <div className="card w-full max-w-2xl max-h-[85vh] overflow-y-auto p-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-sm">Imágenes del repositorio ({CFG.imagesFolder}/)</h3>
+          <button className="btn btn-sec" onClick={onClose}>Cerrar</button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <button className="btn btn-principal" disabled={subiendo} onClick={() => inputRef.current.click()}>
+            {subiendo ? "Subiendo…" : "⬆ Subir imagen (se redimensiona a máx. 1600 px)"}
+          </button>
+          <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { subir(e.target.files[0]); e.target.value = ""; }} />
+          {error && <span className="text-xs text-red-300">{error}</span>}
+        </div>
+        {imagenes === null ? <p className="text-sm text-zinc-400">Cargando imágenes…</p> : imagenes.length === 0 ? (
+          <p className="text-sm text-zinc-400">Aún no hay imágenes. Sube la primera con el botón de arriba.</p>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+            {imagenes.map((im) => (
+              <button key={im.sha} className={"relative rounded-lg overflow-hidden border-2 aspect-square " + (valor === im.url ? "border-[#F4D03F]" : "border-transparent hover:border-white/30")}
+                onClick={() => { onChange(im.url); onClose(); }} title={im.name}>
+                <img src={im.url} alt={im.name} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════ TARJETA DE PROGRAMA ══════════════ */
+function ProgramaCard({ p, programas, alAire, onEditar, onBorrar }) {
+  const vista = resolverPrograma(p, programas);
+  const diasTxt = (p.dias || []).length === 7 ? "Todos los días"
+    : DIAS_SEMANA.filter((d) => (p.dias || []).includes(d.valor)).map((d) => d.corta).join(", ");
+  return (
+    <div className={"card p-3 flex gap-3 items-start " + (alAire ? "ring-1 ring-emerald-400/50" : "")}>
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden shrink-0 bg-white/10">
+        {vista.imagen ? <img src={vista.imagen} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">📻</div>}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          {alAire && <Badge tone="aire">● AL AIRE</Badge>}
+          <Badge tone={p.esReemision ? "reemision" : "original"}>{p.esReemision ? "REEMISIÓN" : "ORIGINAL"}</Badge>
+          <h3 className="font-bold text-sm sm:text-base truncate">{vista.titulo || "(sin título)"}</h3>
+        </div>
+        <p className="text-xs text-zinc-400 truncate">{vista.conductor || "—"} · {p.inicio}–{p.fin}{p.esReemision && vista.titulo !== p.titulo ? ` (reemite: ${p.titulo})` : ""}</p>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          <span className="chip">{diasTxt}</span>
+          {p.repetirCada ? <span className="chip">🔁 cada {p.repetirCada} h</span> : null}
+          {Array.isArray(p.horarios) && p.horarios.length ? <span className="chip" title={p.horarios.map((h) => `${h.inicio}-${h.fin}`).join(" · ")}>+{p.horarios.length} horario(s)</span> : null}
+        </div>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-1 shrink-0">
+        <button className="btn btn-sec !px-2.5" onClick={onEditar} title="Editar">✏️</button>
+        <button className="btn btn-peligro !px-2.5" onClick={onBorrar} title="Eliminar">🗑</button>
+      </div>
+    </div>
+  );
+}
+/* ══════════════ EDITOR DE PROGRAMA (modal) ══════════════ */
+function ProgramaEditor({ inicial, programas, onCerrar, onGuardar }) {
+  const nuevo = !inicial;
+  const [p, setP] = useState(() => JSON.parse(JSON.stringify(inicial || {
+    id: "prog-" + Date.now().toString(36), titulo: "", conductor: "",
+    inicio: "08:00", fin: "09:00", dias: [1,2,3,4,5], imagen: "", repetirCada: undefined,
+    horarios: [], esReemision: false, origenId: "",
+  })));
+  const [picker, setPicker] = useState(false);
+  const [error, setError] = useState("");
+  const set = (k, v) => setP((x) => Object.assign({}, x, { [k]: v }));
+  const origenes = programas.filter((x) => !x.esReemision && x.id !== p.id);
+
+  const guardar = () => {
+    if (!p.titulo.trim()) return setError("Escribe el título del programa.");
+    if (!/^\d{1,2}:\d{2}$/.test(p.inicio) || !/^\d{1,2}:\d{2}$/.test(p.fin)) return setError("Revisa las horas de inicio y fin.");
+    if (p.esReemision && !p.origenId) return setError("Elige de qué programa original es la reemisión.");
+    if (!(p.dias || []).length) return setError("Marca al menos un día de transmisión.");
+    if (!p.esReemision) { set("origenId", ""); }
+    onGuardar(sanitizarPrograma(p));
+  };
+
+  const setExtra = (i, k, v) => setP((x) => {
+    const hs = JSON.parse(JSON.stringify(x.horarios || []));
+    hs[i][k] = v; return Object.assign({}, x, { horarios: hs });
+  });
+  const agregarExtra = () => setP((x) => Object.assign({}, x, {
+    horarios: [...(x.horarios || []), { inicio: "10:00", fin: "10:30", dias: [1,2,3,4,5] }],
+  }));
+  const quitarExtra = (i) => setP((x) => {
+    const hs = JSON.parse(JSON.stringify(x.horarios || []));
+    hs.splice(i, 1); return Object.assign({}, x, { horarios: hs });
+  });
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-start sm:items-center justify-center bg-black/70 p-3 sm:p-6 overflow-y-auto" onClick={onCerrar}>
+      <div className="card w-full max-w-xl p-4 sm:p-5 my-auto" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-bold text-base mb-3">{nuevo ? "➕ Nuevo programa" : "✏️ Editar programa"}</h3>
+
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Título</label>
+        <input className="inp mb-2" value={p.titulo} onChange={(e) => set("titulo", e.target.value)} placeholder="Ej. Flash Informativo de la mañana" />
+
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Conductor / responsable</label>
+        <input className="inp mb-2" value={p.conductor} onChange={(e) => set("conductor", e.target.value)} placeholder="Ej. Redacción Voces Campesinas" />
+
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Imagen de portada</label>
+        <div className="flex gap-2 items-center mb-2">
+          <div className="w-11 h-11 rounded-lg overflow-hidden bg-white/10 shrink-0">
+            {p.imagen ? <img src={p.imagen} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center">🖼️</div>}
+          </div>
+          <input className="inp flex-1" value={p.imagen} onChange={(e) => set("imagen", e.target.value)} placeholder="URL de la imagen…" />
+          <button className="btn btn-sec shrink-0" onClick={() => setPicker(true)}>Galería</button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1">Inicio</label>
+            <input type="time" className="inp" value={p.inicio} onChange={(e) => set("inicio", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1">Fin</label>
+            <input type="time" className="inp" value={p.fin} onChange={(e) => set("fin", e.target.value)} />
+          </div>
+        </div>
+        <p className="text-[11px] text-zinc-500 mb-2">Si el fin es menor o igual al inicio, el programa cruza la medianoche.</p>
+
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Días de transmisión</label>
+        <div className="mb-2"><DiasChips dias={p.dias || []} onChange={(v) => set("dias", v)} /></div>
+
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Repetición el mismo día (flashes)</label>
+        <SelectRepeticion valor={p.repetirCada} onChange={(v) => set("repetirCada", v)} />
+        <AvisoRepeticion inicio={p.inicio} fin={p.fin} repetirCada={p.repetirCada} />
+
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-xs font-semibold text-zinc-400">Horarios adicionales (multi-horario)</label>
+            <button className="btn btn-sec !py-1 !px-2 text-xs" onClick={agregarExtra}>+ Añadir</button>
+          </div>
+          {(p.horarios || []).length === 0 && <p className="text-[11px] text-zinc-500">Opcional. El horario de arriba ya cubre la emisión principal.</p>}
+          {(p.horarios || []).map((h, i) => (
+            <div key={i} className="card p-2 mb-2">
+              <div className="flex gap-2 items-center mb-1.5">
+                <input type="time" className="inp !w-auto flex-1" value={h.inicio} onChange={(e) => setExtra(i, "inicio", e.target.value)} />
+                <span className="text-zinc-500">–</span>
+                <input type="time" className="inp !w-auto flex-1" value={h.fin} onChange={(e) => setExtra(i, "fin", e.target.value)} />
+                <button className="btn btn-peligro !px-2 !py-1" onClick={() => quitarExtra(i)}>✕</button>
+              </div>
+              <div className="mb-1.5">
+                <SelectRepeticion valor={h.repetirCada} onChange={(v) => setExtra(i, "repetirCada", v)} />
+              </div>
+              <AvisoRepeticion inicio={h.inicio} fin={h.fin} repetirCada={h.repetirCada} />
+              <DiasChips dias={h.dias || []} onChange={(v) => setExtra(i, "dias", v)} />
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3 border-t border-white/10 pt-3">
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" checked={Boolean(p.esReemision)} onChange={(e) => set("esReemision", e.target.checked)} />
+            <span>Es reemisión (repite otro programa y toma su información)</span>
+          </label>
+          {p.esReemision && (
+            <select className="inp mt-2" value={p.origenId || ""} onChange={(e) => set("origenId", e.target.value)}>
+              <option value="">— Elige el programa original —</option>
+              {origenes.map((x) => <option key={x.id} value={x.id}>{x.titulo} ({x.inicio}–{x.fin})</option>)}
+            </select>
+          )}
+        </div>
+
+        {error && <p className="mt-3 text-sm text-red-300 bg-red-950/50 border border-red-500/30 rounded-lg px-3 py-2">⚠ {error}</p>}
+
+        <div className="flex justify-end gap-2 mt-4">
+          <button className="btn btn-sec" onClick={onCerrar}>Cancelar</button>
+          <button className="btn btn-principal" onClick={guardar}>{nuevo ? "Agregar programa" : "Guardar cambios"}</button>
+        </div>
+      </div>
+      {picker && <ImagenPicker valor={p.imagen} onChange={(v) => set("imagen", v)} onClose={() => setPicker(false)} />}
+    </div>
+  );
+}
+
+/* ══════════════ COMPUERTA DE TOKEN ══════════════ */
+function PuertaToken({ onEntrar, errorCarga }) {
+  const [t, setT] = useState("");
+  const [recordar, setRecordar] = useState(false);
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="card w-full max-w-md p-6">
+        <div className="text-center mb-4">
+          <div className="text-4xl mb-2">📻</div>
+          <h1 className="text-xl font-extrabold">Voces Campesinas</h1>
+          <p className="text-sm text-zinc-400">Panel de programación · {CFG.owner}/{CFG.repo}</p>
+        </div>
+        <label className="block text-xs font-semibold text-zinc-400 mb-1">Token de GitHub (solo se guarda en tu navegador)</label>
+        <input type="password" className="inp mb-2" value={t} onChange={(e) => setT(e.target.value)}
+          placeholder="ghp_… o github_pat_…" onKeyDown={(e) => e.key === "Enter" && onEntrar(t, recordar)} />
+        <label className="flex items-center gap-2 text-xs text-zinc-400 mb-3 cursor-pointer">
+          <input type="checkbox" checked={recordar} onChange={(e) => setRecordar(e.target.checked)} />
+          Recordar en este navegador (localStorage). Si no lo marcas, se olvida al cerrar la pestaña.
+        </label>
+        <button className="btn btn-principal w-full justify-center" onClick={() => onEntrar(t, recordar)}>Entrar al panel</button>
+        {(errorCarga || "") && <p className="mt-3 text-sm text-red-300 bg-red-950/50 border border-red-500/30 rounded-lg px-3 py-2">⚠ {errorCarga}</p>}
+        <details className="mt-4 text-xs text-zinc-400">
+          <summary className="cursor-pointer font-semibold text-zinc-300">¿De dónde saco el token?</summary>
+          <ol className="list-decimal list-inside space-y-1 mt-2 leading-relaxed">
+            <li>Ve a <span className="text-[#F4D03F] font-mono">github.com/settings/tokens</span></li>
+            <li>"Generate new token" → clase clásica con scope <b>repo</b> (o fine-grained con permiso Contents: Read and write sobre este repositorio).</li>
+            <li>Cópialo y pégalo arriba. Usa fecha de vencimiento corta: puedes revocarlo cuando quieras.</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+  );
+}
+/* ══════════════ APLICACIÓN PRINCIPAL ══════════════ */
+const K_TOKEN = "vc_token";
+
+function App() {
+  const [token, setToken] = useState("");
+  const [data, setData] = useState(null);
+  const [sha, setSha] = useState(null);
+  const [dirty, setDirty] = useState(false);
+  const [cargando, setCargando] = useState(false);
+  const [errorGate, setErrorGate] = useState("");
+  const [editando, setEditando] = useState(null);
+  const [confirmar, setConfirmar] = useState(null);
+  const [aviso, setAviso] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [tab, setTab] = useState("prog");
+  const [ahora, setAhora] = useState(new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setAhora(new Date()), 30000);
+    return () => clearInterval(t);
+  }, []);
+  useEffect(() => {
+    const h = (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [dirty]);
+
+  const mostrarAviso = (m) => { setAviso(m); setTimeout(() => setAviso(""), 6000); };
+
+  const aplicarCarga = (r) => {
+    if (r.data) { setData(r.data); setSha(r.sha); }
+    else setData({ version: 1, actualizado: "", emisora: null, programas: [] });
+    setDirty(false);
+  };
+
+  // Token recordado en este navegador → entrar directo
+  useEffect(() => {
+    const t0 = sessionStorage.getItem(K_TOKEN) || localStorage.getItem(K_TOKEN) || "";
+    if (!t0) return;
+    TOKEN = t0; setToken(t0); setCargando(true);
+    recargar().catch((e) => {
+      setErrorGate(e.message); setToken("");
+      sessionStorage.removeItem(K_TOKEN); localStorage.removeItem(K_TOKEN);
+    });
+  }, []);
+
+  function recargar() {
+    setCargando(true);
+    return leerProgramacion().then((r) => { aplicarCarga(r); setCargando(false); })
+      .catch((e) => { setCargando(false); throw e; });
+  }
+
+  function entrar(t, recordar) {
+    setErrorGate("");
+    if (!t.trim()) { setErrorGate("Pega tu token de GitHub."); return; }
+    setCargando(true);
+    TOKEN = t.trim();
+    leerProgramacion()
+      .then((r) => {
+        (recordar ? localStorage : sessionStorage).setItem(K_TOKEN, t.trim());
+        aplicarCarga(r); setToken(t.trim()); setCargando(false);
+      })
+      .catch((e) => { setErrorGate(e.message); setCargando(false); });
+  }
+
+  function salir() {
+    sessionStorage.removeItem(K_TOKEN); localStorage.removeItem(K_TOKEN);
+    location.reload();
+  }
+
+  const emisora = (data && data.emisora) || { nombre: "Voces Campesinas", streamUrl: "", imagenPorDefecto: "" };
+  const programas = (data && data.programas) || [];
+  const alAire = encontrarAlAire(programas, ahora);
+  const vistaAire = resolverPrograma(alAire, programas);
+
+  const setProgramas = (fn) => { setData((d) => Object.assign({}, d, { programas: fn(d.programas) })); setDirty(true); };
+  const setEmisora = (k, v) => { setData((d) => Object.assign({}, d, { emisora: Object.assign({}, d.emisora, { [k]: v }) })); setDirty(true); };
+
+  function guardarPrograma(p) {
+    setProgramas((ps) => ps.some((x) => x.id === p.id) ? ps.map((x) => (x.id === p.id ? p : x)) : [...ps, p]);
+    setEditando(null);
+    mostrarAviso("Programa listo. Pulsa «Guardar en GitHub» para publicarlo.");
+  }
+
+  async function guardar() {
+    const limpios = programas.map(sanitizarPrograma).filter((p) => p.id);
+    for (let i = 0; i < limpios.length; i++) {
+      const p = limpios[i];
+      if (!p.titulo || !p.inicio || !p.fin || !p.dias.length) {
+        mostrarAviso("⚠ El programa «" + (p.titulo || "sin título") + "» está incompleto: título, horarios y al menos un día.");
+        return;
+      }
+    }
+    setGuardando(true);
+    try {
+      const file = {
+        version: 1,
+        actualizado: new Date().toISOString(),
+        emisora: {
+          nombre: (emisora.nombre || "").trim() || "Voces Campesinas",
+          streamUrl: (emisora.streamUrl || "").trim(),
+          imagenPorDefecto: (emisora.imagenPorDefecto || "").trim(),
+        },
+        programas: limpios,
+      };
+      const sha2 = await guardarProgramacion(file, sha);
+      setSha(sha2); setDirty(false);
+      mostrarAviso("✓ ¡Publicado en GitHub! El widget se actualiza solo en ~2 minutos.");
+    } catch (e) { mostrarAviso("⚠ " + e.message); }
+    setGuardando(false);
+  }
+
+  if (!token) return <PuertaToken onEntrar={entrar} errorCarga={errorGate} />;
+
+  return (
+    <div className="max-w-3xl mx-auto px-3 sm:px-5 pb-24">
+      {/* Encabezado */}
+      <header className="pt-5 pb-3 flex flex-wrap items-center gap-2">
+        <span className="text-2xl">📻</span>
+        <div className="flex-1 min-w-[180px]">
+          <h1 className="font-extrabold leading-tight">{emisora.nombre || "Voces Campesinas"}</h1>
+          <p className="text-[11px] text-zinc-400">
+            {alAire ? <>Ahora al aire: <b className="text-emerald-300">{vistaAire.titulo}</b>{vistaAire.esReemision ? " (reemisión)" : ""}</> : "Sin programas al aire en este momento"}
+          </p>
+        </div>
+        <a className="btn btn-sec !py-1.5" href={`https://github.com/${CFG.owner}/${CFG.repo}`} target="_blank" rel="noreferrer">Repo ↗</a>
+        <button className="btn btn-sec !py-1.5" onClick={salir}>Salir</button>
+      </header>
+
+      {/* Barra de publicación */}
+      <div className="card p-3 mb-3 flex flex-wrap items-center gap-2">
+        <span className={"text-xs font-semibold " + (dirty ? "text-amber-300" : "text-emerald-300")}>
+          {dirty ? "● Cambios sin publicar" : "● Publicado y sincronizado"}
+        </span>
+        <div className="flex-1" />
+        <button className="btn btn-sec" disabled={cargando} onClick={() => recargar().then(() => mostrarAviso("Recargado desde GitHub.")).catch((e) => mostrarAviso("⚠ " + e.message))}>↻ Recargar</button>
+        {dirty && <button className="btn btn-sec" disabled={guardando} onClick={() => recargar().then(() => mostrarAviso("Cambios descartados.")).catch((e) => mostrarAviso("⚠ " + e.message))}>Descartar</button>}
+        <button className="btn btn-principal" disabled={guardando || !dirty} onClick={guardar}>
+          {guardando ? "Publicando…" : "Guardar en GitHub"}
+        </button>
+      </div>
+
+      {/* Pestañas */}
+      <div className="flex gap-1 mb-3">
+        {[["prog", "📋 Programación"], ["emisora", "🎚 Emisora"]].map(([k, t]) => (
+          <button key={k} onClick={() => setTab(k)}
+            className={"btn !py-1.5 " + (tab === k ? "btn-principal" : "btn-sec")}>{t}</button>
+        ))}
+      </div>
+
+      {cargando && !data ? <p className="text-sm text-zinc-400 p-6 text-center">Cargando programación desde GitHub…</p> : tab === "prog" ? (
+        <div className="space-y-2">
+          <button className="btn btn-principal w-full justify-center" onClick={() => setEditando({})}>➕ Nuevo programa</button>
+          {programas.map((p) => (
+            <ProgramaCard key={p.id} p={p} programas={programas} alAire={alAire && alAire.id === p.id}
+              onEditar={() => setEditando(p)}
+              onBorrar={() => setConfirmar({
+                texto: `¿Eliminar «${resolverPrograma(p, programas).titulo || p.titulo}»? Se publicará al guardar.`,
+                onOk: () => { setProgramas((ps) => ps.filter((x) => x.id !== p.id)); setConfirmar(null); },
+              })} />
+          ))}
+          {programas.length === 0 && <p className="text-sm text-zinc-400 text-center py-6">No hay programas todavía. Agrega el primero.</p>}
+
+          <details className="card p-3 text-xs text-zinc-400 leading-relaxed">
+            <summary className="cursor-pointer font-semibold text-zinc-300 text-sm mb-1">ℹ️ Cómo usar este panel</summary>
+            <ul className="list-disc list-inside space-y-1 mt-1">
+              <li>Edita con libertad: nada se publica hasta que pulses <b>Guardar en GitHub</b>.</li>
+              <li>El widget de tu web se actualiza solo ~2 minutos después de publicar.</li>
+              <li><b>Flashes cada N horas:</b> en el editor elige "Repetir cada N h". Con inicio 09:00 salen en horas impares; con 10:00, en pares.</li>
+              <li><b>Reemisiones:</b> marca la casilla y elige el programa original; tomará su título, conductor e imagen.</li>
+              <li><b>Imágenes recomendadas:</b> portadas cuadradas 1080×1080 px; horizontales 1600×900 px. Se redimensionan solas al subirlas.</li>
+              <li>El token solo vive en este navegador; nunca se publica en el repositorio.</li>
+            </ul>
+          </details>
+        </div>
+      ) : (
+        <div className="card p-4 space-y-3">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1">Nombre de la emisora</label>
+            <input className="inp" value={emisora.nombre || ""} onChange={(e) => setEmisora("nombre", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1">URL del stream (audio en vivo)</label>
+            <input className="inp" value={emisora.streamUrl || ""} onChange={(e) => setEmisora("streamUrl", e.target.value)} placeholder="https://…/radio.mp3" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1">Imagen por defecto (cuando un programa no tiene portada)</label>
+            <div className="flex gap-2 items-center">
+              <div className="w-11 h-11 rounded-lg overflow-hidden bg-white/10 shrink-0">
+                {emisora.imagenPorDefecto ? <img src={emisora.imagenPorDefecto} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center">🖼️</div>}
+              </div>
+              <input className="inp flex-1" value={emisora.imagenPorDefecto || ""} onChange={(e) => setEmisora("imagenPorDefecto", e.target.value)} />
+              <GaleriaBoton valor={emisora.imagenPorDefecto} onChange={(v) => setEmisora("imagenPorDefecto", v)} />
+            </div>
+          </div>
+          <p className="text-[11px] text-zinc-500">Estos datos los lee el widget al cargar: cambiar el stream o el nombre aquí actualiza el reproductor de tu web al publicar.</p>
+        </div>
+      )}
+
+      {/* Editor */}
+      {editando !== null && (
+        <ProgramaEditor inicial={editando.id ? editando : null} programas={programas}
+          onCerrar={() => setEditando(null)} onGuardar={guardarPrograma} />
+      )}
+
+      {/* Confirmación de borrado */}
+      {confirmar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setConfirmar(null)}>
+          <div className="card w-full max-w-sm p-4" onClick={(e) => e.stopPropagation()}>
+            <p className="text-sm mb-4">{confirmar.texto}</p>
+            <div className="flex justify-end gap-2">
+              <button className="btn btn-sec" onClick={() => setConfirmar(null)}>Cancelar</button>
+              <button className="btn btn-peligro" onClick={confirmar.onOk}>Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Aviso flotante */}
+      {aviso && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 card px-4 py-2.5 text-sm max-w-[92vw] text-center shadow-xl">{aviso}</div>
+      )}
+
+      <footer className="pt-6 text-center text-[11px] text-zinc-500">
+        Panel servido desde GitHub Pages · el token nunca sale de tu navegador ·
+        repositorio {CFG.owner}/{CFG.repo}
+      </footer>
+    </div>
+  );
+}
+
+/* Botón que abre la galería de imágenes (usado en Emisora) */
+function GaleriaBoton({ valor, onChange }) {
+  const [abierto, setAbierto] = useState(false);
+  return (
+    <React.Fragment>
+      <button className="btn btn-sec shrink-0" onClick={() => setAbierto(true)}>Galería</button>
+      {abierto && <ImagenPicker valor={valor} onChange={onChange} onClose={() => setAbierto(false)} />}
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>
