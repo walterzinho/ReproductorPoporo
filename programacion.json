@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T22:12:37.699Z",
+  "actualizado": "2026-11-08T22:16:37.384Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -49,14 +49,14 @@
     },
     {
       "id": "prog-03",
-      "titulo": "Campesinos en Acción",
+      "titulo": "Magazín Campesinos en Acción",
       "conductor": "ANUC La Palma",
       "inicio": "06:30",
       "fin": "06:59",
       "dias": [
         6
       ],
-      "imagen": "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-campesinos-en-accion.jpg",
       "esReemision": false
     },
     {
