@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T23:28:47.502Z",
+  "actualizado": "2026-11-08T23:31:14.014Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -8,7 +8,7 @@
     "sinPrograma": {
       "titulo": "Música de la Tierrita",
       "conductor": "Voces Campesinas",
-      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/sin-programa-relleno-2.jpg"
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/sin-programa-relleno.jpg"
     }
   },
   "programas": [
