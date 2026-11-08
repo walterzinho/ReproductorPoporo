@@ -262,22 +262,24 @@
                 : PROGRAMAS_RESPALDO;
             const streamUrl = (remote && remote.emisora && remote.emisora.streamUrl) || WIDGET_CONFIG.streamUrl;
             const defaultBg = (remote && remote.emisora && remote.emisora.imagenPorDefecto) || WIDGET_CONFIG.defaultBg;
+            // Configuración del relleno cuando no hay programa al aire (editable en Ajustes del panel)
+            const sinProgramaCfg = (remote && remote.emisora && remote.emisora.sinPrograma) || null;
 
             // 2) ¿Qué suena ahora y qué sigue? (reevalúa cada 30 s)
             useEffect(() => {
                 const checkSchedule = () => {
                     const estado = estadoReproduccion(programas);
                     setCurrentProg(estado.actual || {
-                        titulo: "Música de la Tierrita",
-                        conductor: WIDGET_CONFIG.name,
-                        imagen: defaultBg
+                        titulo: (sinProgramaCfg && sinProgramaCfg.titulo) || "Música de la Tierrita",
+                        conductor: (sinProgramaCfg && sinProgramaCfg.conductor) || WIDGET_CONFIG.name,
+                        imagen: (sinProgramaCfg && sinProgramaCfg.imagen) || defaultBg
                     });
                     setNextInfo(estado.siguiente);
                 };
                 checkSchedule();
                 const timer = setInterval(checkSchedule, 30000);
                 return () => clearInterval(timer);
-            }, [programas, defaultBg]);
+            }, [programas, defaultBg, sinProgramaCfg]);
 
             // Información resuelta (reemisiones toman los datos del original)
             const vista = resolverProg(currentProg, programas);
