@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T22:23:20.099Z",
+  "actualizado": "2026-11-08T23:00:58.358Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -176,7 +176,7 @@
         2,
         4
       ],
-      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/flash-informativo-1.jpg",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/flash-informativo-2.jpg",
       "esReemision": false,
       "repetirCada": 2
     },
