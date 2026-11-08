@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T21:54:53.255Z",
+  "actualizado": "2026-11-08T22:05:04.399Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -170,7 +170,7 @@
     },
     {
       "id": "flash-informativo-impares",
-      "titulo": "Flash Informativo (horas impares)",
+      "titulo": "Flash Informativo 2",
       "conductor": "Redacción Voces Campesinas",
       "inicio": "05:00",
       "fin": "05:05",
@@ -179,14 +179,14 @@
         3,
         5
       ],
-      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/flash-informativo-2.jpg",
       "esReemision": false,
       "repetirCada": 2
     },
     {
       "id": "flash-informativo-pares",
-      "titulo": "Flash Informativo (horas pares)",
-      "conductor": "Redacción Voces Campesinas",
+      "titulo": "Flash Informativo 1",
+      "conductor": "Conexión Territorial",
       "inicio": "04:00",
       "fin": "04:05",
       "dias": [
@@ -194,7 +194,7 @@
         2,
         4
       ],
-      "imagen": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/flash-informativo-1.jpg",
       "esReemision": false,
       "repetirCada": 2
     },
