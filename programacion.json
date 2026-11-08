@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T22:05:32.493Z",
+  "actualizado": "2026-11-08T22:12:37.699Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -44,7 +44,7 @@
         5,
         6
       ],
-      "imagen": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/alborada-colombiana.jpg",
       "esReemision": false
     },
     {
