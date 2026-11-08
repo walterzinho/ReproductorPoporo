@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-08T22:18:00.949Z",
+  "actualizado": "2026-11-08T22:23:20.099Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -97,24 +97,6 @@
       "esReemision": false
     },
     {
-      "id": "prog-08",
-      "titulo": "Perreo Campesino",
-      "conductor": "Música Carranguera",
-      "inicio": "13:00",
-      "fin": "13:59",
-      "dias": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "imagen": "https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=600",
-      "esReemision": false
-    },
-    {
       "id": "prog-09",
       "titulo": "Palabras del Territorio",
       "conductor": "Walter Sosa",
@@ -170,7 +152,7 @@
     },
     {
       "id": "flash-informativo-impares",
-      "titulo": "Flash Informativo 2",
+      "titulo": "Flash Informativo - LMV",
       "conductor": "Redacción Voces Campesinas",
       "inicio": "05:00",
       "fin": "05:05",
@@ -185,7 +167,7 @@
     },
     {
       "id": "flash-informativo-pares",
-      "titulo": "Flash Informativo 1",
+      "titulo": "Flash Informativo - DMJ",
       "conductor": "Conexión Territorial",
       "inicio": "04:00",
       "fin": "04:05",
@@ -197,6 +179,30 @@
       "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/flash-informativo-1.jpg",
       "esReemision": false,
       "repetirCada": 2
+    },
+    {
+      "id": "prog-mw8ec5x7",
+      "titulo": "Magazín Campesinos en Acción",
+      "conductor": "ANUC La Palma",
+      "inicio": "06:30",
+      "fin": "06:59",
+      "dias": [
+        2
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-campesinos-en-accion.jpg",
+      "esReemision": true
+    },
+    {
+      "id": "prog-mw8ectpv",
+      "titulo": "Magazín Campesinos en Acción (copia)",
+      "conductor": "ANUC La Palma",
+      "inicio": "21:30",
+      "fin": "21:59",
+      "dias": [
+        4
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-campesinos-en-accion.jpg",
+      "esReemision": true
     }
   ]
 }
