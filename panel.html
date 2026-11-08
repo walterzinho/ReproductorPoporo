@@ -662,7 +662,54 @@ function TabWidget({ cfg, aviso }) {
 }
 
 /* ══════════════ PESTAÑA AJUSTES ══════════════ */
-function TabAjustes({ cfg, conToken, onGuardado, aviso }) {
+/* ══════════════ TARJETA: CUANDO NO HAY PROGRAMA (RELLENO) ══════════════ */
+function TarjetaSinPrograma({ sinProg, setSinPrograma, cfg, conToken, aviso }) {
+  const [subiendo, setSubiendo] = useState(false);
+  const fileRef = useRef(null);
+  async function subir(file) {
+    if (!conToken) { aviso("⚠ Pega tu token para poder subir imágenes."); return; }
+    setSubiendo(true);
+    try {
+      const base64 = await archivoABase64Jpeg(file, 1600, 0.87);
+      const url = await subirImagen(cfg, "sin-programa-relleno.jpg", base64);
+      setSinPrograma("imagen", url);
+      aviso("✓ Imagen subida a GitHub. Pulsa «Guardar en GitHub» para publicar.");
+    } catch (e) { aviso("⚠ " + e.message); }
+    setSubiendo(false);
+  }
+  return (
+    <Tarjeta className="p-4">
+      <h3 className="text-sm font-bold">🎵 Cuando no hay ningún programa al aire</h3>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        Nombre e imagen que muestra el widget en los momentos sin programación (el relleno entre programas).
+        Se publica con «Guardar en GitHub».
+      </p>
+      <div className="mt-3 grid gap-3">
+        <Campo label="Nombre que se muestra"><input className={inpCls} value={sinProg.titulo || ""} onChange={(e) => setSinPrograma("titulo", e.target.value)} placeholder="Música de la Tierrita" /></Campo>
+        <Campo label="Conductor(a) que aparece"><input className={inpCls} value={sinProg.conductor || ""} onChange={(e) => setSinPrograma("conductor", e.target.value)} placeholder="Voces Campesinas" /></Campo>
+        <Campo label="Imagen" hint="Pega una URL o sube un archivo (se guarda en imagenes/ de tu repo).">
+          <div className="flex items-start gap-2">
+            {sinProg.imagen ? (
+              <img src={sinProg.imagen} alt="" className="h-14 w-24 shrink-0 rounded-lg border border-zinc-200 object-cover dark:border-zinc-800"
+                onError={(e) => { e.target.style.visibility = "hidden"; }} />
+            ) : (
+              <div className="flex h-14 w-24 shrink-0 items-center justify-center rounded-lg border border-dashed border-zinc-300 text-lg dark:border-zinc-700">🖼️</div>
+            )}
+            <div className="flex-1 space-y-1.5">
+              <input className={inpCls} value={sinProg.imagen || ""} onChange={(e) => setSinPrograma("imagen", e.target.value)} placeholder="https://… o sube un archivo" />
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files[0]; if (f) subir(f); e.target.value = ""; }} />
+              <Boton className="!py-1 text-xs" disabled={subiendo || !conToken} onClick={() => fileRef.current && fileRef.current.click()}>
+                {subiendo ? <span className="spin">◌</span> : "⬆"} {subiendo ? "Subiendo…" : "Subir imagen a GitHub"}
+              </Boton>
+            </div>
+          </div>
+        </Campo>
+      </div>
+    </Tarjeta>
+  );
+}
+
+function TabAjustes({ cfg, conToken, onGuardado, aviso, sinProg, setSinPrograma }) {
   const [d, setD] = useState(Object.assign({}, cfg));
   const [verToken, setVerToken] = useState(false);
   const [probando, setProbando] = useState(false);
@@ -697,6 +744,8 @@ function TabAjustes({ cfg, conToken, onGuardado, aviso }) {
 
   return (
     <div className="mx-auto max-w-xl space-y-3">
+      <TarjetaSinPrograma sinProg={sinProg} setSinPrograma={setSinPrograma} cfg={cfg} conToken={conToken} aviso={aviso} />
+
       <Tarjeta className="p-4">
         <h3 className="text-sm font-bold">🔑 Token de GitHub</h3>
         <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -788,11 +837,20 @@ function App() {
   useEffect(() => { TOKEN = localStorage.getItem(K_TOKEN) || ""; }, [conToken]);
 
   const emisora = (data && data.emisora) || { nombre: "Voces Campesinas", streamUrl: "", imagenPorDefecto: "" };
+  const sinProg = (emisora && emisora.sinPrograma) || {};
   const programas = (data && data.programas) || [];
   const alAire = encontrarAlAire(programas, ahora);
 
   const setProgramas = (fn) => { setData((d) => Object.assign({}, d, { programas: fn(d.programas) })); setDirty(true); };
   const setEmisora = (k, v) => { setData((d) => Object.assign({}, d, { emisora: Object.assign({}, d.emisora, { [k]: v }) })); setDirty(true); };
+  const setSinPrograma = (k, v) => {
+    setData((d) => {
+      const emi = Object.assign({}, d.emisora || {});
+      emi.sinPrograma = Object.assign({}, emi.sinPrograma, { [k]: v });
+      return Object.assign({}, d, { emisora: emi });
+    });
+    setDirty(true);
+  };
 
   function guardarPrograma(p) {
     setProgramas((ps) => ps.some((x) => x.id === p.id) ? ps.map((x) => (x.id === p.id ? p : x)) : [...ps, p]);
@@ -829,6 +887,11 @@ function App() {
           nombre: (emisora.nombre || "").trim() || "Voces Campesinas",
           streamUrl: (emisora.streamUrl || "").trim(),
           imagenPorDefecto: (emisora.imagenPorDefecto || "").trim(),
+          sinPrograma: {
+            titulo: (sinProg.titulo || "").trim() || "Música de la Tierrita",
+            conductor: (sinProg.conductor || "").trim() || "Voces Campesinas",
+            imagen: (sinProg.imagen || "").trim(),
+          },
         },
         programas: limpios,
       };
@@ -887,9 +950,8 @@ function App() {
           ))}
         </div>
 
-        {/* Barra de publicación */}
-        {tab !== "ajustes" && (
-          <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
+        {/* Barra de publicación (visible en todas las pestañas, incluida Ajustes) */}
+        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
             {soloLectura
               ? <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">👁 Modo solo lectura</span>
               : <span className={"text-xs font-bold " + (dirty ? "text-amber-600 dark:text-amber-300" : "text-emerald-600 dark:text-emerald-300")}>
@@ -901,8 +963,7 @@ function App() {
             <Boton principal className="!py-1.5 text-xs" disabled={guardando || !dirty || soloLectura} onClick={guardar}>
               {guardando ? "Publicando…" : "⬆ Guardar en GitHub"}
             </Boton>
-          </div>
-        )}
+        </div>
 
         {cargando && !data ? (
           <p className="py-10 text-center text-sm text-zinc-500"><span className="spin inline-block">◌</span> Cargando programación desde GitHub…</p>
@@ -914,7 +975,7 @@ function App() {
         ) : tab === "widget" ? (
           <TabWidget cfg={cfg} aviso={aviso} />
         ) : (
-          <TabAjustes cfg={cfg} conToken={conToken} aviso={aviso}
+          <TabAjustes cfg={cfg} conToken={conToken} aviso={aviso} sinProg={sinProg} setSinPrograma={setSinPrograma}
             onGuardado={(d) => { setCfg(d); setConToken(Boolean(d.token)); recargar(); }} />
         )}
       </main>
