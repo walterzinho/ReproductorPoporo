@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T12:42:57.349Z",
+  "actualizado": "2026-11-09T12:52:52.047Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -160,6 +160,18 @@
       ],
       "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-campesinos-en-accion.jpg",
       "esReemision": true
+    },
+    {
+      "id": "prog-mw99e0b7",
+      "titulo": "3 AM Inframundo",
+      "conductor": "Chalo y Silvana",
+      "inicio": "21:30",
+      "fin": "22:00",
+      "dias": [
+        2
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/3-am-inframundo.jpg",
+      "esReemision": false
     }
   ]
 }
