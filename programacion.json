@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T12:52:52.047Z",
+  "actualizado": "2026-11-09T13:13:14.496Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -26,7 +26,7 @@
         5,
         6
       ],
-      "imagen": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/cosecha-de-fin-de-ano.jpg",
       "esReemision": false
     },
     {
@@ -163,12 +163,24 @@
     },
     {
       "id": "prog-mw99e0b7",
-      "titulo": "3 AM Inframundo",
+      "titulo": "3 AM InfraMundo",
       "conductor": "Chalo y Silvana",
       "inicio": "21:30",
       "fin": "22:00",
       "dias": [
         2
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/3-am-inframundo.jpg",
+      "esReemision": false
+    },
+    {
+      "id": "prog-mw99i8u2",
+      "titulo": "3 AM InfraMundo",
+      "conductor": "Chalo y Silvana",
+      "inicio": "21:30",
+      "fin": "22:00",
+      "dias": [
+        6
       ],
       "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/3-am-inframundo.jpg",
       "esReemision": false
