@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T12:37:34.517Z",
+  "actualizado": "2026-11-09T12:42:57.349Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -62,7 +62,7 @@
     {
       "id": "prog-05",
       "titulo": "Magazín Región Activa",
-      "conductor": "Jotta Ricón",
+      "conductor": "CorpoActúa",
       "inicio": "07:30",
       "fin": "10:59",
       "dias": [
@@ -74,7 +74,7 @@
     {
       "id": "prog-06",
       "titulo": "Reemisión Magazín Región Activa",
-      "conductor": "Jotta Rincón",
+      "conductor": "CorpoActúa",
       "inicio": "22:00",
       "fin": "23:59",
       "dias": [
@@ -82,32 +82,6 @@
       ],
       "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-region-activa.jpg",
       "esReemision": true
-    },
-    {
-      "id": "prog-07",
-      "titulo": "La Parcela de Opinión",
-      "conductor": "Walter Sosa",
-      "inicio": "21:00",
-      "fin": "21:30",
-      "dias": [
-        4,
-        5
-      ],
-      "imagen": "https://raw.githubusercontent.com/walterzinho/VocesApp/main/parcela-politica.jpg",
-      "esReemision": false
-    },
-    {
-      "id": "prog-09",
-      "titulo": "Palabras del Territorio",
-      "conductor": "Walter Sosa",
-      "inicio": "19:30",
-      "fin": "20:29",
-      "dias": [
-        2,
-        6
-      ],
-      "imagen": "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=600",
-      "esReemision": false
     },
     {
       "id": "prog-10",
@@ -130,30 +104,13 @@
       "dias": [
         3
       ],
-      "imagen": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=600",
-      "esReemision": false
-    },
-    {
-      "id": "prog-13",
-      "titulo": "Cosecha de Amor",
-      "conductor": "Dj Rosado",
-      "inicio": "20:00",
-      "fin": "20:59",
-      "dias": [
-        1,
-        2,
-        3,
-        4,
-        6,
-        0
-      ],
-      "imagen": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/renacer-andino.jpg",
       "esReemision": false
     },
     {
       "id": "flash-informativo-impares",
       "titulo": "Flash Informativo - LMV",
-      "conductor": "Redacción Voces Campesinas",
+      "conductor": "Conexión Territorial",
       "inicio": "05:00",
       "fin": "05:05",
       "dias": [
