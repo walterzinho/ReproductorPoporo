@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T13:13:14.496Z",
+  "actualizado": "2026-11-09T13:13:31.962Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -14,7 +14,7 @@
   "programas": [
     {
       "id": "prog-01",
-      "titulo": "Cosecha de Fin de Año",
+      "titulo": "La Cosecha de Fin de Año",
       "conductor": "Joaquin Escobar",
       "inicio": "18:30",
       "fin": "20:30",
