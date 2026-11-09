@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T12:30:11.400Z",
+  "actualizado": "2026-11-09T12:37:34.517Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -80,7 +80,7 @@
       "dias": [
         4
       ],
-      "imagen": "https://images.unsplash.com/photo-1520520131472-3093f5044aa7?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-region-activa.jpg",
       "esReemision": true
     },
     {
@@ -118,7 +118,7 @@
       "dias": [
         0
       ],
-      "imagen": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/renacer-andino.jpg",
       "esReemision": false
     },
     {
