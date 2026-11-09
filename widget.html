@@ -285,16 +285,42 @@
             const vista = resolverProg(currentProg, programas);
             const sigVista = nextInfo ? resolverProg(nextInfo.prog, programas) : null;
 
+            // Recuerda (en el origen del widget) si el audio quedó encendido,
+            // para reanudarlo solo cuando la página del oyente se recarga.
+            const recordarAudio = (encendido) => {
+                try {
+                    if (encendido) localStorage.setItem("vc_audio_encendido", "1");
+                    else localStorage.removeItem("vc_audio_encendido");
+                } catch (e) { /* navegadores sin localStorage disponible: se ignora */ }
+            };
+
             const togglePlay = () => {
                 const audio = audioRef.current;
                 if (!isPlaying) {
                     audio.src = streamUrl;
-                    audio.play().catch(() => setIsPlaying(false));
+                    recordarAudio(true);
+                    audio.play().catch(() => { recordarAudio(false); setIsPlaying(false); });
                 } else {
                     audio.pause();
+                    recordarAudio(false);
                 }
                 setIsPlaying(!isPlaying);
             };
+
+            // 3) Reanudación automática: al cambiar de página en una web con el
+            // reproductor en el header, el iframe se recarga. Si el oyente lo dejó
+            // encendido, intenta arrancar de nuevo. Los navegadores lo permiten tras
+            // la primera interacción del usuario (el primer clic siempre es manual);
+            // en iPhone/iPad el sistema puede seguir bloqueándolo.
+            useEffect(() => {
+                let recuerda = false;
+                try { recuerda = localStorage.getItem("vc_audio_encendido") === "1"; } catch (e) {}
+                if (!recuerda || !streamUrl || !audioRef.current) return;
+                audioRef.current.src = streamUrl;
+                audioRef.current.play()
+                    .then(() => setIsPlaying(true))
+                    .catch(() => setIsPlaying(false));
+            }, [streamUrl]);
 
             return (
                 <div className="w-full">
