@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T12:15:11.601Z",
+  "actualizado": "2026-11-09T12:30:11.400Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -32,9 +32,9 @@
     {
       "id": "prog-02",
       "titulo": "Alborada Colombiana",
-      "conductor": "Música Colombiana",
-      "inicio": "04:00",
-      "fin": "05:40",
+      "conductor": "Beatriz Sánchez",
+      "inicio": "05:00",
+      "fin": "05:59",
       "dias": [
         0,
         1,
@@ -68,7 +68,7 @@
       "dias": [
         6
       ],
-      "imagen": "https://images.unsplash.com/photo-1478737270239-2fccd2c78621?q=80&w=600",
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-region-activa.jpg",
       "esReemision": false
     },
     {
@@ -194,7 +194,7 @@
     },
     {
       "id": "prog-mw8ectpv",
-      "titulo": "Magazín Campesinos en Acción (copia)",
+      "titulo": "Magazín Campesinos en Acción",
       "conductor": "ANUC La Palma",
       "inicio": "21:30",
       "fin": "21:59",
