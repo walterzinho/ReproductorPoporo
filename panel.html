@@ -597,7 +597,7 @@ function TabWidget({ cfg, aviso }) {
         </div>
         <div className="p-4">
           <div className="rounded-xl border border-zinc-200 bg-zinc-200/60 p-3 dark:border-zinc-800 dark:bg-zinc-800/60">
-            <iframe key={version} src={wUrl + "?v=" + version} title="Vista previa" className="h-[210px] w-full rounded-lg" />
+            <iframe key={version} src={wUrl + "?v=" + version} title="Vista previa" allow="autoplay" className="h-[210px] w-full rounded-lg" />
           </div>
           <Boton className="mt-2 !py-1 text-xs" onClick={() => setVersion((v) => v + 1)}>↻ Refrescar vista previa</Boton>
         </div>
@@ -641,6 +641,9 @@ function TabWidget({ cfg, aviso }) {
             </Boton>
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
               El <b>iframe</b> es lo más simple: siempre muestra la última versión publicada sin volver a copiar nada.
+            </p>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              🔄 <b>Autoplay al cambiar de página:</b> el widget recuerda si el oyente lo dejó encendido e intenta arrancar solo cuando la página se recarga (ideal si va en el header de tu web). Para que el navegador lo permita, el iframe debe llevar <code className="text-zinc-400">allow="autoplay"</code>: el código que copias aquí ya lo incluye. La primera visita siempre necesita un clic en ▶ y en iPhone/iPad el sistema puede bloquear el arranque automático.
             </p>
           </div>
         </Tarjeta>
