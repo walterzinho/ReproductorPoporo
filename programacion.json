@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "actualizado": "2026-11-09T13:13:31.962Z",
+  "actualizado": "2026-11-11T13:54:13.401Z",
   "emisora": {
     "nombre": "Voces Campesinas",
     "streamUrl": "https://emisora.vocescampesinas.co/listen/vocescampesinas/radio.mp3",
@@ -73,7 +73,7 @@
     },
     {
       "id": "prog-06",
-      "titulo": "Reemisión Magazín Región Activa",
+      "titulo": "Magazín Región Activa",
       "conductor": "CorpoActúa",
       "inicio": "22:00",
       "fin": "23:59",
@@ -184,6 +184,18 @@
       ],
       "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/3-am-inframundo.jpg",
       "esReemision": false
+    },
+    {
+      "id": "prog-mwc6jlwn",
+      "titulo": "Magazín Región Activa",
+      "conductor": "CorpoActúa",
+      "inicio": "07:30",
+      "fin": "10:59",
+      "dias": [
+        3
+      ],
+      "imagen": "https://raw.githubusercontent.com/walterzinho/ReproductorPoporo/main/imagenes/magazin-region-activa.jpg",
+      "esReemision": true
     }
   ]
 }
